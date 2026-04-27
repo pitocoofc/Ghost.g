@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost.lol</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background-color: #000; 
+            color: #fff; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        #bg { 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: -1; 
+            background-size: cover; 
+            background-position: center;
+            filter: brightness(0.4);
+        }
+        .container { 
+            width: 100%; 
+            max-width: 400px; 
+            padding: 20px; 
+            text-align: center;
+        }
+        .profile-card { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(15px); 
+            padding: 30px; 
+            border-radius: 25px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        #avatar { 
+            width: 120px; 
+            height: 120px; 
+            border-radius: 50%; 
+            margin-bottom: 15px; 
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 { font-size: 24px; margin-bottom: 10px; }
+        p { font-size: 14px; opacity: 0.8; margin-bottom: 20px; }
+        
+        /* Estilo do Iframe/Portal */
+        .portal-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 15px;
+            width: 100%;
+        }
+        .portal-area { 
+            width: 100%; 
+            height: 500px; 
+            border-radius: 15px; 
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        iframe { width: 100%; height: 100%; border: none; }
+        
+        /* Player de Música simples */
+        #music-control { 
+            margin-top: 10px; 
+            cursor: pointer; 
+            font-size: 12px; 
+            background: #222; 
+            padding: 8px 15px; 
+            border-radius: 20px; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bg"></div>
+
+    <div class="container">
+        <div class="profile-card">
+            <img id="avatar" src="" alt="Avatar">
+            <h1 id="name"></h1>
+            <p id="bio"></p>
+            <div id="music-control">▶ Tocar Música</div>
+        </div>
+
+        <div class="portal-card">
+            <h3>Ghost Search Engine</h3>
+            <div class="portal-area">
+                <iframe id="ghost-frame" loading="lazy" src=""></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        document.getElementById('bg').style.backgroundImage = `url(${ghostConfig.background})`;
+        document.getElementById('avatar').src = ghostConfig.avatar;
+        document.getElementById('name').innerText = ghostConfig.name;
+        document.getElementById('bio').innerText = ghostConfig.bio;
+        document.getElementById('ghost-frame').src = ghostConfig.ghostSearchUrl;
+        
+        const audio = new Audio(ghostConfig.music);
+        const btn = document.getElementById('music-control');
+        
+        btn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                btn.innerText = "⏸ Pausar Música";
+            } else {
+                audio.pause();
+                btn.innerText = "▶ Tocar Música";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -92,39 +93,31 @@
         <div class="portal-card">
             <h3>Ghost Search Engine</h3>
             <div class="portal-area">
-                <iframe id="ghost-frame" loading="lazy"></iframe>
-                
+                <iframe id="ghost-frame" loading="lazy" src=""></iframe>
             </div>
         </div>
     </div>
 
-        <script src="config.js"></script>
+    <script src="config.js"></script>
     <script>
-        // Verificação de segurança
-        if (typeof ghostConfig !== 'undefined') {
-            document.getElementById('bg').style.backgroundImage = `url(${ghostConfig.background})`;
-            document.getElementById('avatar').src = ghostConfig.avatar;
-            document.getElementById('name').innerText = ghostConfig.name;
-            document.getElementById('bio').innerText = ghostConfig.bio;
-            
-            // Define o src apenas agora, via JS
-            document.getElementById('ghost-frame').setAttribute('src', ghostConfig.ghostSearchUrl);
-            
-            const audio = new Audio(ghostConfig.music);
-            const btn = document.getElementById('music-control');
-            
-            btn.addEventListener('click', () => {
-                if (audio.paused) {
-                    audio.play();
-                    btn.innerText = "⏸ Pausar Música";
-                } else {
-                    audio.pause();
-                    btn.innerText = "▶ Tocar Música";
-                }
-            });
-        } else {
-            console.error("Erro: config.js não foi carregado!");
-        }
+        document.getElementById('bg').style.backgroundImage = `url(${ghostConfig.background})`;
+        document.getElementById('avatar').src = ghostConfig.avatar;
+        document.getElementById('name').innerText = ghostConfig.name;
+        document.getElementById('bio').innerText = ghostConfig.bio;
+        document.getElementById('ghost-frame').src = ghostConfig.ghostSearchUrl;
+        
+        const audio = new Audio(ghostConfig.music);
+        const btn = document.getElementById('music-control');
+        
+        btn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                btn.innerText = "⏸ Pausar Música";
+            } else {
+                audio.pause();
+                btn.innerText = "▶ Tocar Música";
+            }
+        });
     </script>
 </body>
 </html>

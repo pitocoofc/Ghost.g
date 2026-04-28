@@ -4,6 +4,5 @@ const ghostConfig = {
     background: "https://cdn.discordapp.com/avatars/1074028627982815303/47b28985df3d85e30d9d8e12ddc39a3d.png?size=2048",
     music: "https://raw.githubusercontent.com/pitocoofc/Ghost.g/main/music.mp3",
     ghostSearchUrl: "https://pitocoofc.github.io/Ghost.g/P.html",
-    bio: "Developer & Creator. 
-    Construindo o futuro no terminal."
+    bio: "Developer & Creator. \n Construindo o futuro no terminal."
 };

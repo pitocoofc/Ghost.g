@@ -1,280 +1,1175 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ghost Search OS</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ghost-NDJ Reborn</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --danger: #ef4444;
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-heavy: rgba(10, 10, 14, 0.96);
+            --text-color: #ffffff;
+            --bg-color: #050508;
+            --bg-image: url('ae/photo-1451187580459-43490279c0fa.jpeg');
+            --border: rgba(255, 255, 255, 0.1);
+        }
 
-<style>
-:root {
-    --primary: #3b82f6;
-    --danger: #ef4444;
-    --bg: #050505;
-    --bar-bg: #fce4e4; /* Cor da sua imagem */
-    --text-dark: #333;
-    --glass: rgba(255, 255, 255, 0.05);
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body {
+            background: var(--bg-color);
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+            overflow: hidden;
+        }
 
-body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; }
+        
+        #home-hub {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(rgba(5, 5, 8, 0.75), rgba(5, 5, 8, 0.85)), var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
 
-/* 🏠 HOME */
-#home {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: radial-gradient(circle, #111 0%, #000 100%);
-}
+        
+        #browser-frame {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 60px);
+            border: none;
+            background: #fff;
+            display: none;
+            z-index: 5;
+        }
 
-.logo { 
-    font-size: 42px; 
-    font-weight: 800; 
-    margin-bottom: 30px; 
-    background: linear-gradient(to right, #fff, #3b82f6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+        
+        .topbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            height: 60px;
+            display: none; 
+            align-items: center;
+            padding: 0 15px;
+            background: #111115;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
 
-.search-box {
-    display: flex;
-    width: 90%;
-    max-width: 600px;
-    background: var(--glass);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 8px;
-    backdrop-filter: blur(10px);
-}
+        .url-container {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            padding: 5px 15px;
+            margin-right: 10px;
+        }
 
-.search-box input {
-    flex: 1; border: none; outline: none; background: transparent; color: white; padding: 12px; font-size: 16px;
-}
+        .url-static-prefix { color: #666; font-size: 14px; margin-right: 2px; font-family: monospace; }
 
-/* 🔵 TOP BAR (IGUAL À FOTO) */
-.topbar {
-    position: fixed;
-    top: 0; width: 100%;
-    height: 60px;
-    display: none; 
-    align-items: center;
-    padding: 0 15px;
-    background: var(--bar-bg);
-    z-index: 1000;
-}
+        .url-input-field {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 14px;
+            outline: none;
+        }
 
-.url-container {
-    flex: 1;
-    background: rgba(255,255,255,0.6);
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
-    padding: 5px 15px;
-    margin-right: 10px;
-}
+        .menu-trigger {
+            font-size: 26px;
+            color: var(--text-color);
+            cursor: pointer;
+            font-weight: bold;
+            width: 38px; height: 38px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+        }
+        .menu-trigger:hover { background: var(--glass); }
 
-.url-static-prefix { color: #888; font-size: 14px; margin-right: 2px; }
+        
+        .dropdown {
+            position: absolute;
+            top: 65px; right: 15px;
+            background: #111115;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            width: 220px;
+            overflow: hidden;
+            z-index: 3000;
+        }
 
-.url-input-field {
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: #333;
-    font-size: 14px;
-    outline: none;
-}
+        .dropdown-item {
+            padding: 14px 15px;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .dropdown-item:hover { background: var(--primary); color: white; }
 
-.menu-trigger {
-    font-size: 28px;
-    color: var(--text-dark);
-    cursor: pointer;
-    font-weight: bold;
-}
+        .settings-trigger {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 18px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: 0.2s;
+        }
+        .settings-trigger:hover { background: rgba(255,255,255,0.15); transform: rotate(45deg); }
 
-/* 📱 DROPDOWN MENU */
-.dropdown {
-    position: absolute;
-    top: 65px; right: 15px;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    display: none;
-    flex-direction: column;
-    width: 200px;
-    overflow: hidden;
-    z-index: 3000;
-}
+        .branding {
+            text-align: center;
+            margin-bottom: 35px;
+        }
 
-.dropdown-item {
-    padding: 15px;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-    font-weight: 500;
-}
+        .logo-img {
+            width: 75px;
+            height: 75px;
+            border-radius: 22px;
+            margin-bottom: 15px;
+            animation: pulse 3s infinite ease-in-out;
+            box-shadow: 0 0 20px var(--primary);
+            object-fit: cover;
+        }
 
-.dropdown-item:hover { background: #f0f0f0; }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.06); opacity: 1; box-shadow: 0 0 35px var(--primary); }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
 
-/* ⚠️ MODAL ANIMADO (FILTRO) */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.95);
-    backdrop-filter: blur(10px);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 5000;
-}
+        .branding h1 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-.modal {
-    background: #0a0a0a;
-    border: 1px solid #333;
-    padding: 30px;
-    border-radius: 20px;
-    max-width: 400px; width: 90%;
-}
+        .main-container {
+            width: 90%;
+            max-width: 550px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
 
-.typewriter-text {
-    font-family: 'Courier New', monospace;
-    font-size: 14px;
-    color: #00ff41;
-    margin-bottom: 25px;
-    min-height: 50px;
-}
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 6px 10px;
+            border-radius: 50px;
+            width: 100%;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
+            background: rgba(255, 255, 255, 0.08);
+        }
 
-/* 🌐 IFRAME AREA */
-iframe {
-    width: 100%;
-    height: calc(100vh - 60px);
-    margin-top: 60px;
-    border: none;
-    display: none;
-    background: white;
-}
-</style>
+        #url-input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: white;
+            padding: 12px 15px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-btn {
+            background: var(--primary);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+        .search-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+        
+        .shortcuts {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 100%;
+        }
+
+        .shortcut-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .shortcut-item:hover { transform: translateY(-3px); }
+
+        .icon-circle {
+            width: 55px;
+            height: 55px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            border: 1px solid var(--border);
+        }
+
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--glass-heavy);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #0f0f14;
+            border: 1px solid var(--border);
+            padding: 30px;
+            border-radius: 24px;
+            max-width: 460px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.7);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .typewriter-text {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #00ff41;
+            margin-bottom: 25px;
+            min-height: 45px;
+            line-height: 1.4;
+        }
+
+        
+        .config-group { margin-bottom: 18px; }
+        .config-group label { display: block; font-size: 11px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;}
+        .config-group input[type="text"], .config-group input[type="number"], .config-group select {
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; color: white; outline: none; font-size: 14px;
+        }
+        .config-group input[type="color"] {
+            width: 100%; height: 42px; border: 1px solid var(--border); border-radius: 10px; background: transparent; cursor: pointer;
+        }
+        .file-custom {
+            display: block; width: 100%; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed var(--border); text-align: center; border-radius: 10px; cursor: pointer; font-size: 13px; color: #aaa;
+        }
+        .file-custom:hover { border-color: var(--primary); color: #fff; }
+
+        .shortcut-manager-list {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .shortcut-manager-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 13px;
+        }
+        .shortcut-manager-item:last-child { border: none; }
+        .del-shortcut-btn { color: var(--danger); cursor: pointer; background: none; border: none; font-size: 16px; }
+
+        .add-shortcut-row {
+            display: flex; gap: 8px; margin-top: 10px;
+        }
+        .add-shortcut-row input { flex: 1; }
+        .add-shortcut-btn { background: var(--primary); border: none; color: white; padding: 0 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
+
+        
+        .exchange-result {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            display: none;
+        }
+        
+        .topbar-btn {
+            font-size: 20px;
+            color: var(--text-color);
+            cursor: pointer;
+            width: 38px; height: 38px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        .topbar-btn:hover { background: var(--glass); }
+
+        
+        #reader-mode-overlay {
+            position: fixed;
+            inset: 0;
+            background: #f5f1ea; 
+            color: #111111;
+            z-index: 4000;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+
+        .reader-container {
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+            font-family: 'Georgia', serif;
+            font-size: 18px;
+        }
+
+        .reader-close {
+            position: fixed;
+            top: 20px; right: 20px;
+            background: #222;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: sans-serif;
+            font-size: 14px;
+        }
+
+    </style>
 </head>
 <body>
 
-<div class="modal-overlay" id="securityModal">
-    <div class="modal">
-        <h2 style="color:var(--danger); margin-bottom:10px;">SEGURANÇA</h2>
-        <div class="typewriter-text" id="modalDesc"></div>
-        <div style="display:flex; gap:10px;">
-            <button onclick="closeModal()" style="flex:1; padding:12px; background:#222; color:#fff; border:none; border-radius:8px; cursor:pointer;">Abortar</button>
-            <button id="btnProceed" style="flex:1; padding:12px; background:var(--danger); color:#fff; border:none; border-radius:8px; cursor:pointer;">Acessar</button>
+    <div class="settings-trigger" onclick="toggleModal('settings-modal', true)">⚙️</div>
+
+        <div class="topbar" id="topbar">
+        <div class="topbar-btn" onclick="reloadPage()" title="Recarregar página">🔄</div>
+        
+        <div class="url-container">
+            <span class="url-static-prefix" id="urlPrefix">ghostsearch.gt/</span>
+            <input class="url-input-field" id="urlbar" onkeydown="handleBar(event)">
+        </div>
+
+        <div class="topbar-btn" onclick="activateReaderMode()" title="Modo de Leitura">📖</div>
+        <div class="menu-trigger" onclick="toggleMenu(event)">⋮</div>
+
+        <div class="dropdown" id="menuDropdown">
+            <div class="dropdown-item" onclick="goBack()"><span>⬅️</span> Voltar Página</div>
+            <div class="dropdown-item" onclick="goHome()"><span>🏠</span> Ir para Home</div>
+            <div class="dropdown-item" onclick="openLocalFile()"><span>📄</span> Licença</div>
+            <div class="dropdown-item" onclick="toggleModal('crypto-modal', true)"><span>💱</span> Conversor de Moedas</div>
+            <div class="dropdown-item" onclick="toggleModal('tradutor', true)"><span>🌍</span> Tradutor</div>
+            <div class="dropdown-item" onclick="sharePage()"><span>📤</span> Compartilhar Link</div>
+            <div class="dropdown-item" onclick="toggleModal('settings-modal', true)" style="border-top:1px solid var(--border); color:var(--primary);"><span>⚙️</span> Configurações</div>
         </div>
     </div>
-</div>
 
-<div class="topbar" id="topbar">
-    <div class="url-container">
-        <span class="url-static-prefix">ghostsearch.gt/</span>
-        <input class="url-input-field" id="urlbar" onkeydown="handleBar(event)">
+
+    <div id="home-hub">
+        <div class="branding">
+            <img src="ae/164 Sem Título_20260607131700.png" id="hub-logo" class="logo-img">
+            <h1 id="hub-title">Ghost-NDJ Reborn</h1>
+        </div>
+
+        <div class="main-container">
+            <div class="search-box">
+                <input type="text" id="url-input" placeholder="Pesquisar anonimamente ou digitar link..." onkeydown="checkEnter(event)">
+                <button class="search-btn" onclick="navigate()">➔</button>
+            </div>
+
+            <div class="shortcuts" id="shortcuts-display"></div>
+        </div>
     </div>
-    <div class="menu-trigger" onclick="toggleMenu()">⋮</div>
 
-    <div class="dropdown" id="menuDropdown">
-        <div class="dropdown-item" onclick="goBack()"><span>⬅</span> Voltar Página</div>
-        <div class="dropdown-item" onclick="goHome()"><span>🏠</span> Ir para Home</div>
-        <div class="dropdown-item" onclick="openLocalFile('seu-arquivo.html')"><span>📄</span> Arquivo Local</div>
+    <iframe id="browser-frame" src="about:blank"></iframe>
+
+    <div class="modal-overlay" id="security-modal">
+        <div class="modal-content">
+            <h2 style="color:var(--danger); margin-bottom:10px; font-size: 18px;">⚠️ PROTOCOLO DE CONEXÃO EXTERNA</h2>
+            <div class="typewriter-text" id="modalDesc"></div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="toggleModal('security-modal', false)" style="flex:1; padding:12px; background:#222; color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:600;">Abortar</button>
+                <button id="btnProceed" style="flex:1; padding:12px; background:var(--danger); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:600;">Proceder</button>
+            </div>
+        </div>
     </div>
-</div>
 
-<div id="home">
-    <div class="logo">Ghost Search OS</div>
-    <div class="search-box">
-        <input id="search" placeholder="Pesquisar na web..." onkeydown="handleSearch(event)">
-        <button onclick="search()" style="background:var(--primary); border:none; color:white; padding:0 15px; border-radius:10px; cursor:pointer;">➜</button>
+    <div class="modal-overlay" id="crypto-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Conversor de Moedas</h2>
+                <button onclick="toggleModal('crypto-modal', false)" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">✕</button>
+            </div>
+
+            <div class="config-group">
+                <label>Valor</label>
+                <input type="number" id="exchange-amount" value="1" min="0" oninput="performConversion()">
+            </div>
+
+            <div class="config-group">
+                <label>De (Moeda Origem)</label>
+                <select id="exchange-from" onchange="performConversion()">
+                    </select>
+            </div>
+
+            <div class="config-group">
+                <label>Para (Moeda Destino)</label>
+                <select id="exchange-to" onchange="performConversion()">
+                    </select>
+            </div>
+
+            <div class="exchange-result" id="exchange-result-box">
+                <span id="exchange-calculated">--</span>
+            </div>
+
+            <div style="margin-top:25px;">
+                <button onclick="toggleModal('crypto-modal', false)" style="width:100%; padding:12px; background:var(--primary); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:600;">Fechar</button>
+            </div>
+        </div>
     </div>
-</div>
 
-<iframe id="frame"></iframe>
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Customização Externa</h2>
+                <button onclick="toggleModal('settings-modal', false)" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">✕</button>
+            </div>
+            
+            <div class="config-group">
+                <label>Cor de Destaque (Accent)</label>
+                <input type="color" id="cfgPrimary" onchange="updateThemePreview()">
+            </div>
 
-<script>
-const BASE = "https://g-jxlf.onrender.com";
-let historyStack = [];
-let currentIndex = -1;
-const SAFE_DOMAINS = ["g-jxlf.onrender.com", "wikipedia.org", "github.com", "google.com", "youtube.com", "developer.mozilla.org"];
+            <div class="config-group">
+                <label>Plano de Fundo (Imagem da Galeria)</label>
+                <label class="file-custom">
+                    <span id="file-label">📁 Escolher imagem do dispositivo...</span>
+                    <input type="file" id="cfgBgGallery" accept="image/*" style="display:none;" onchange="handleImageUpload(this)">
+                </label>
+            </div>
 
-function toggleMenu() {
-    const m = document.getElementById("menuDropdown");
-    m.style.display = m.style.display === "flex" ? "none" : "flex";
-}
+            <div class="config-group">
+                <label>Motor de Busca do Browser</label>
+                <select id="cfgSearchEngine">
+                    <optgroup label="Recomendados⭐">
+                        <option value="ghost">SearXNG</option>
+                        <option value="swiss">Swisscows(Esse Motor pode ser lento)</option>
+                        <option value="marginala">Marginala(Esse Motor pode ser lento)</option>
+                        <option value="yep">Yep(Esse Motor pode ser lento)</option>
+                        <option value="bing">Bing</option>
+                        <option value="kiddle">Kiddle</option>
+                    </optgroup>
+                    <optgroup label="Wikipédia🗃️">
+                        <option value="wikipedia">Wikipédia</option>
+                        <option value="wikitionarypt">WikiTionary(PT)</option>
+                        <option value="wikitionaryen">WikiTionary(EN)</option>
+                        <option value="wikilivroen">WikiLivro(EN)</option>
+                        <option value="wikilivropt">WikiLivro(PT)</option>
+                        <option value="wikiversityen">WikiVersity(EN)</option>
+                        <option value="wikiversitypt">WikiVersity(PT)</option>
+                        <option value="specieswikimedia">SpeciesWikimedia</option>
+                        <option value="wikidata">WikiData</option>
+                    </optgroup>
+                    <optgroup label="Outros">
+                        <option value="archiver">Archive.org</option>
+                        <option value="gutenberg">Gutenberg</option>
+                        <option value="algolia">Algolia</option>
+                    </optgroup>
+                </select>
+            </div>
 
-// Fecha menu ao clicar fora
-window.onclick = (e) => { if(!e.target.matches('.menu-trigger')) document.getElementById("menuDropdown").style.display = "none"; }
+            <div class="config-group" style="margin-top: 25px;">
+                <label>Gerenciar Atalhos Rápidos</label>
+                <div class="shortcut-manager-list" id="shortcut-manager-list"></div>
+                <div class="add-shortcut-row">
+                    <input type="text" id="new-short-name" placeholder="Nome" style="padding: 8px; background: #000; border: 1px solid var(--border); color:#fff; border-radius:6px; font-size:12px;">
+                    <input type="text" id="new-short-url" placeholder="URL" style="padding: 8px; background: #000; border: 1px solid var(--border); color:#fff; border-radius:6px; font-size:12px;">
+                    <button class="add-shortcut-btn" onclick="addNewShortcut()">Add</button>
+                </div>
+            </div>
 
-function typeWrite(text, elementId) {
-    const el = document.getElementById(elementId);
-    el.innerHTML = ""; let i = 0;
-    function type() {
-        if (i < text.length) { el.innerHTML += text.charAt(i); i++; setTimeout(type, 20); }
-    }
-    type();
-}
+            <div class="config-group" style="margin-top: 25px; border-top: 1px solid var(--border); padding-top: 15px;">
+                <label>Modo do Histórico (Privacidade)</label>
+                <select id="cfgHistoryMode" onchange="toggleHistoryContainerDisplay()">
+                    <option value="direct">Visível (Direto)</option>
+                    <option value="encrypted">Criptografia Militar (AES-GCM)</option>
+                    <option value="none">Não salvar nada (Anônimo)</option>
+                </select>
+            </div>
 
-function openPage(url, title) {
-    const load = () => {
-        const frame = document.getElementById("frame");
-        frame.src = url;
-        document.getElementById("home").style.display = "none";
-        document.getElementById("topbar").style.display = "flex";
-        frame.style.display = "block";
-        document.getElementById("urlbar").value = title;
+            <div class="config-group" id="history-manager-container">
+                <label>Gerenciar Histórico Recente</label>
+                <div class="shortcut-manager-list" id="history-manager-list" style="max-height: 160px; overflow-y: auto;"></div>
+                <button onclick="clearAllHistory()" style="width:100%; margin-top:8px; padding:6px; background:var(--danger); border:none; border-radius:6px; color:white; font-size:11px; font-weight:bold; cursor:pointer;">Limpar Todo o Histórico</button>
+            </div>
 
-        currentIndex++;
-        historyStack.splice(currentIndex);
-        historyStack.push({url, title});
-    };
+            <div style="display:flex; gap:10px; margin-top:30px;">
+                <button onclick="toggleModal('settings-modal', false)" style="flex:1; padding:12px; background:#181822; color:#fff; border:none; border-radius:10px; cursor:pointer;">Cancelar</button>
+                <button onclick="saveConfigurations()" style="flex:1; padding:12px; background:var(--primary); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:600;">Aplicar Tudo</button>
+            </div>
+        </div>
+    </div>
 
-    const isSafe = SAFE_DOMAINS.some(d => url.includes(d));
-    if (url.startsWith("http") && !isSafe) {
-        document.getElementById("securityModal").style.display = "flex";
-        typeWrite(`ATENÇÃO: Conexão externa detectada para [${url}]. Deseja ignorar o protocolo de segurança?`, "modalDesc");
-        document.getElementById("btnProceed").onclick = () => { closeModal(); load(); };
-    } else { load(); }
-}
+    <div class="modal-overlay" id="tradutor">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tradutor</h2>
+                <button onclick="toggleModal('tradutor', false)" style="background:none; border:none; color:white; font-size:24px; cursor:pointer;">✕</button>
+            </div>
 
-function goBack() {
-    if (currentIndex > 0) {
-        currentIndex--;
-        const p = historyStack[currentIndex];
-        document.getElementById("frame").src = p.url;
-        document.getElementById("urlbar").value = p.title;
-    } else { goHome(); }
-}
+            <div class="config-group">
+                <label>Idiomas</label>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <select id="trans-from" style="flex:1;">
+                        <option value="auto">Detectar Idioma</option>
+                        <option value="pt">Português</option>
+                        <option value="en">Inglês</option>
+                        <option value="es">Espanhol</option>
+                        <option value="fr">Francês</option>
+                        <option value="ja">Japonês</option>
+                    </select>
+                    <span style="color:#888;">➔</span>
+                    <select id="trans-to" style="flex:1;">
+                        <option value="en">Inglês</option>
+                        <option value="pt">Português</option>
+                        <option value="es">Espanhol</option>
+                        <option value="fr">Francês</option>
+                        <option value="ja">Japonês</option>
+                    </select>
+                </div>
+            </div>
 
-function goHome() {
-    currentIndex = -1; historyStack = [];
-    document.getElementById("frame").style.display = "none";
-    document.getElementById("topbar").style.display = "none";
-    document.getElementById("home").style.display = "flex";
-}
+            <div class="config-group">
+                <label>Motor de Tradução</label>
+                <select id="trans-engine">
+                    <option value="simply">SimplyTranslate (Privacidade)</option>
+                    <option value="google">Google Translate API</option>
+                </select>
+            </div>
 
-function openLocalFile() {
-// Redireciona imediatamente ao carregar a página
-window.location.href = "ia.html";
-}
+            <div class="config-group">
+                <label>Texto Original</label>
+                <input type="text" id="trans-input" placeholder="Digite o que deseja traduzir...">
+            </div>
 
-function closeModal() { document.getElementById("securityModal").style.display = "none"; }
-function search() { 
-    const q = document.getElementById("search").value; 
-    if(q) openPage(`${BASE}/search?q=${encodeURIComponent(q)}`, q); 
-}
-function handleSearch(e) { if(e.key === "Enter") search(); }
-function handleBar(e) {
-    if(e.key === "Enter") {
-        let v = document.getElementById("urlbar").value;
-        let url = v.includes(".") ? (v.startsWith("http") ? v : "https://"+v) : `${BASE}/search?q=${encodeURIComponent(v)}`;
-        openPage(url, v);
-    }
-}
-</script>
+            <div class="exchange-result" id="trans-result-box" style="text-align:left; font-weight:normal; font-family:monospace; white-space:pre-wrap;">
+                <span id="trans-calculated">--</span>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:25px;">
+                <button onclick="toggleModal('tradutor', false)" style="flex:1; padding:12px; background:#181822; color:#fff; border:none; border-radius:10px; cursor:pointer;">Fechar</button>
+                <button onclick="performTranslation()" style="flex:1; padding:12px; background:var(--primary); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:600;">Traduzir</button>
+            </div>
+        </div>
+    </div>
+    <div id="reader-mode-overlay">
+        <button class="reader-close" onclick="closeReaderMode()">Sair da Leitura</button>
+        <div class="reader-container" id="reader-content">
+            </div>
+    </div>
+
+    <script>
+        const hub = document.getElementById('home-hub');
+        const frame = document.getElementById('browser-frame');
+        const input = document.getElementById('url-input');
+        const topbar = document.getElementById('topbar');
+
+        let currentEngine = "ghost";
+        let base64BgData = "";
+
+        const ENGINES = {
+            ghost: "https://g-jxlf.onrender.com/search?q=",
+            swiss: "https://swisscows.com/web?query=",
+            yep: "https://yep.com/web?q=",
+            kiddle: "https://www.kiddle.co/ms.php?q=",
+            algolia: "https://hn.algolia.com/?query=",
+            wikipedia: "https://www.wikipedia.org/wiki/",
+            marginala: "https://search.marginalia.nu/search?query=",
+            archiver: "https://archive.org/search?query=",
+            wikidata: "https://www.wikidata.org/w/index.php?search=",
+            wikiversitypt: "https://pt.wikiversity.org/w/index.php?title=Especial:Pesquisar&go=Go&search=",
+            wikiversityen: "https://en.wikiversity.org/w/index.php?title=Especial:Pesquisar&go=Go&search=",
+            wikilivropt: "https://pt.wikibooks.org/w/index.php?search=",
+            wikilivroen: "https://en.wikibooks.org/w/index.php?search=",
+            wikitionarypt: "https://pt.wiktionary.org/wiki/",
+            wikitionaryen: "https://en.wiktionary.org/wiki/",
+            gutenberg: "https://www.gutenberg.org/ebooks/search/?query=",
+            specieswikimedia: "https://species.wikimedia.org/wiki/",
+            bing: "https://www.bing.com/search?q="
+        };
+
+        const SAFE_DOMAINS = ["g-jxlf.onrender.com", "wikipedia.org", "github.com", "google.com", "youtube.com", "developer.mozilla.org", "pitocoofc.github.io", "nexoraofc.github.io", "nexoraincofc.github.io", "www.bing.com","wikipedia.org"];
+        
+        let defaultShortcuts = [
+            { name: "SearXNG", url: "https://g-jxlf.onrender.com/search?q=", icon: "🌍" },
+            { name: "Wikipédia", url: "https://pt.wikipedia.org/", icon: "🗃️"},
+            { name: "bing", url: "https://www.bing.com/search?q=home", icon: "🌐" }
+        ];
+        let userShortcuts = [];
+        let historyMode = "direct"; 
+        let activeHistory = [];
+        const cryptoKeyRaw = new Uint8Array([87,101,98,79,83,71,104,111,115,116,78,68,74,76,105,98]); 
+
+        window.onload = async function() {
+            loadSavedSettings();
+            renderShortcuts();
+            fetchAvailableCurrencies();
+            await initHistory();
+        };
+
+        function toggleMenu(e) {
+            e.stopPropagation();
+            const m = document.getElementById("menuDropdown");
+            m.style.display = m.style.display === "flex" ? "none" : "flex";
+        }
+
+        window.onclick = (e) => { 
+            if(!e.target.matches('.menu-trigger')) document.getElementById("menuDropdown").style.display = "none"; 
+        }
+
+        function typeWrite(text, elementId) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = ""; let i = 0;
+            function type() {
+                if (i < text.length) { el.innerHTML += text.charAt(i); i++; setTimeout(type, 15); }
+            }
+            type();
+        }
+
+        function openPage(url, title) {
+            const load = () => {
+                frame.src = url;
+                frame.style.display = 'block';
+                topbar.style.display = 'flex';
+                hub.style.opacity = '0';
+                setTimeout(() => { hub.style.display = 'none'; }, 400);
+
+                appendHistory(url); 
+
+                if (url.startsWith("https://") || url.startsWith("http://")) {
+                    document.getElementById("urlPrefix").innerText = "";
+                    document.getElementById("urlbar").value = url;
+                } else {
+                    document.getElementById("urlPrefix").innerText = "ghostsearch.gt/";
+                    document.getElementById("urlbar").value = title;
+                }
+            };
+
+            const isSafe = SAFE_DOMAINS.some(d => url.includes(d));
+            if (url.startsWith("http") && !isSafe) {
+                toggleModal('security-modal', true);
+                typeWrite(`ALERTA CRÍTICO: Conexão externa disparada para [${url}]. Deseja ignorar sandbox de metadados do Ghost Search? Esse aviso ainda pode acontecer em outros motores de busca`, "modalDesc");
+                document.getElementById("btnProceed").onclick = () => { toggleModal('security-modal', false); load(); };
+            } else { load(); }
+        }
+
+        function processInput(text) {
+            if(!text) return;
+            text = text.trim();
+            if (text.includes('.') && !text.includes(' ')) {
+                let url = text.startsWith('http') ? text : 'https://' + text;
+                openPage(url, text);
+            } else {
+                let engineUrl = ENGINES[currentEngine] || ENGINES["ghost"];
+                openPage(`${engineUrl}${encodeURIComponent(text)}`, text);
+            }
+        }
+
+        function navigate() { processInput(input.value); }
+        function handleBar(e) { if(e.key === 'Enter') processInput(document.getElementById("urlbar").value); }
+        function checkEnter(e) { if (e.key === 'Enter') navigate(); }
+        function quickNav(url) { openPage(url, url); }
+
+        function goHome() {
+            hub.style.display = 'flex';
+            setTimeout(() => { hub.style.opacity = '1'; }, 5);
+            frame.style.display = 'none';
+            topbar.style.display = 'none';
+            frame.src = 'about:blank';
+            input.value = '';
+        }
+
+        function goBack() {
+            if (frame.style.display === 'block') {
+                try {
+                    frame.contentWindow.history.back();
+                } catch(e) {
+                    console.log("Navegação segura restrita. Use o menu Home.");
+                }
+            }
+        }
+
+        function openLocalFile() { window.location.href = "licenca.html"; }
+
+        function toggleModal(id, show) { 
+            document.getElementById(id).style.display = show ? 'flex' : 'none'; 
+            if(id === 'settings-modal' && show) populateSettingsFields();
+            if(id === 'crypto-modal' && show) performConversion();
+        }
+
+        function handleImageUpload(inputEl) {
+            const file = inputEl.files[0];
+            if (file) {
+                document.getElementById("file-label").innerText = `✓ ${file.name}`;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    base64BgData = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function populateSettingsFields() {
+            const rootStyles = getComputedStyle(document.documentElement);
+            document.getElementById("cfgPrimary").value = rootStyles.getPropertyValue('--primary').trim();
+            document.getElementById("cfgSearchEngine").value = currentEngine;
+            document.getElementById("cfgHistoryMode").value = historyMode;
+            renderShortcutManager();
+            renderHistoryManager();
+            toggleHistoryContainerDisplay();
+        }
+
+        function saveConfigurations() {
+            const primaryColor = document.getElementById("cfgPrimary").value;
+            currentEngine = document.getElementById("cfgSearchEngine").value;
+            historyMode = document.getElementById("cfgHistoryMode").value;
+
+            localStorage.setItem("ghost_ndj_primary", primaryColor);
+            localStorage.setItem("ghost_ndj_engine", currentEngine);
+            localStorage.setItem("ghost_ndj_shortcuts", JSON.stringify(userShortcuts));
+            localStorage.setItem("ghost_ndj_history_mode", historyMode);
+            if(base64BgData) localStorage.setItem("ghost_ndj_bg_gallery", base64BgData);
+
+            applyTheme(primaryColor, base64BgData);
+            renderShortcuts();
+            saveHistoryToStorage(); 
+            toggleModal('settings-modal', false);
+        }
+
+        function applyTheme(primary, bgData) {
+            document.documentElement.style.setProperty('--primary', primary);
+            if(bgData) {
+                document.documentElement.style.setProperty('--bg-image', `url('${bgData}')`);
+            }
+        }
+
+        function loadSavedSettings() {
+            const savedPrimary = localStorage.getItem("ghost_ndj_primary") || "#3b82f6";
+            currentEngine = localStorage.getItem("ghost_ndj_engine") || "ghost";
+            base64BgData = localStorage.getItem("ghost_ndj_bg_gallery") || "";
+            
+            const savedShortcuts = localStorage.getItem("ghost_ndj_shortcuts");
+            if(savedShortcuts) userShortcuts = JSON.parse(savedShortcuts);
+            else userShortcuts = [...defaultShortcuts];
+
+            applyTheme(savedPrimary, base64BgData);
+            historyMode = localStorage.getItem("ghost_ndj_history_mode") || "direct";
+        }
+
+        function updateThemePreview() {
+            const primaryColor = document.getElementById("cfgPrimary").value;
+            document.documentElement.style.setProperty('--primary', primaryColor);
+        }
+
+        function renderShortcuts() {
+            const container = document.getElementById("shortcuts-display");
+            container.innerHTML = "";
+            userShortcuts.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "shortcut-item";
+                div.onclick = () => quickNav(item.url);
+                div.innerHTML = `
+                    <div class="icon-circle">${item.icon || "🌐"}</div>
+                    <span style="font-size:12px; opacity:0.85; font-weight: 500;">${item.name}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderShortcutManager() {
+            const listContainer = document.getElementById("shortcut-manager-list");
+            listContainer.innerHTML = "";
+            if(userShortcuts.length === 0) {
+                listContainer.innerHTML = `<div style="font-size:12px; color:#666; text-align:center; padding:5px;">Sem atalhos</div>`;
+                return;
+            }
+            userShortcuts.forEach((item, index) => {
+                const row = document.createElement("div");
+                row.className = "shortcut-manager-item";
+                row.innerHTML = `
+                    <span>${item.name} <span style="color:#555; font-size:11px;">(${item.url.replace(/^https?:\/\//,'')})</span></span>
+                    <button class="del-shortcut-btn" onclick="deleteShortcut(${index})">✕</button>
+                `;
+                listContainer.appendChild(row);
+            });
+        }
+
+        function addNewShortcut() {
+            const nameInp = document.getElementById("new-short-name");
+            const urlInp = document.getElementById("new-short-url");
+            let name = nameInp.value.trim();
+            let url = urlInp.value.trim();
+            if(!name || !url) return;
+            if(!url.startsWith("http")) url = "https://" + url;
+            let icon = url.includes("youtube.com") ? "▶️" : (url.includes("github.com") ? "🐙" : "🌐");
+            userShortcuts.push({ name, url, icon });
+            nameInp.value = ""; urlInp.value = "";
+            renderShortcutManager();
+        }
+
+        function deleteShortcut(index) {
+            userShortcuts.splice(index, 1);
+            renderShortcutManager();
+        }
+
+        async function sharePage() {
+            const currentUrl = frame.style.display === 'block' ? frame.src : window.location.href;
+            try {
+                if (navigator.share) await navigator.share({ title: 'Ghost-NDJ Browser', url: currentUrl });
+                else { navigator.clipboard.writeText(currentUrl); alert("Copiado!"); }
+            } catch (err) {}
+        }
+
+        
+        async function fetchAvailableCurrencies() {
+            const fromSelect = document.getElementById("exchange-from");
+            const toSelect = document.getElementById("exchange-to");
+            try {
+                const res = await fetch("https://api.frankfurter.dev/v1/currencies");
+                const data = await res.json();
+                
+                let optionsHtml = "";
+                for (const key in data) {
+                    optionsHtml += `<option value="${key}">${key} - ${data[key]}</option>`;
+                }
+                
+                fromSelect.innerHTML = optionsHtml;
+                toSelect.innerHTML = optionsHtml;
+
+                if(data['BRL']) fromSelect.value = 'BRL';
+                if(data['USD']) toSelect.value = 'USD';
+
+            } catch (err) {
+                console.error("Erro ao carregar moedas:", err);
+            }
+        }
+
+        async function performConversion() {
+            const amount = document.getElementById("exchange-amount").value;
+            const from = document.getElementById("exchange-from").value;
+            const to = document.getElementById("exchange-to").value;
+            const resultBox = document.getElementById("exchange-result-box");
+            const resultSpan = document.getElementById("exchange-calculated");
+            if (!from || !to) return;
+
+            if (!amount || amount <= 0 || !from || !to) return;
+
+            if (from === to) {
+                resultBox.style.display = "block";
+                resultSpan.innerText = `${amount} ${from} = ${amount} ${to}`;
+                return;
+            }
+
+            try {
+                resultSpan.innerText = "Calculando...";
+                resultBox.style.display = "block";
+
+                const res = await fetch(`https://api.frankfurter.dev/v1/latest?amount=${amount}&from=${from}&to=${to}`);
+                const data = await res.json();
+                
+                if (data.rates && data.rates[to]) {
+                    const convertedValue = data.rates[to].toFixed(2);
+                    resultSpan.innerText = `${amount} ${from} = ${convertedValue} ${to}`;
+                } else {
+                    resultSpan.innerText = "Erro no cálculo.";
+                }
+            } catch (err) {
+                resultSpan.innerText = "Erro de conexão.";
+                console.error(err);
+            }
+        }
+
+        async function performTranslation() {
+            const text = document.getElementById("trans-input").value.trim();
+            const from = document.getElementById("trans-from").value;
+            const to = document.getElementById("trans-to").value;
+            const engine = document.getElementById("trans-engine").value; 
+            const resultBox = document.getElementById("trans-result-box");
+            const resultSpan = document.getElementById("trans-calculated");
+
+            if (!text) return;
+
+            try {
+                resultSpan.innerText = "Traduzindo...";
+                resultBox.style.display = "block";
+
+                if (engine === "simply") {
+                    const url = `https://simplytranslate.org/api/translate/?engine=google&from=${from}&to=${to}&text=${encodeURIComponent(text)}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    
+                    if (data && data.translated_text) {
+                        resultSpan.innerText = data.translated_text;
+                    } else {
+                        resultSpan.innerText = "Erro ao processar resposta do SimplyTranslate.";
+                    }
+                } else {
+                    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+
+                    if (data && data[0]) {
+                        let translatedText = "";
+                        data[0].forEach(sentence => {
+                            if (sentence[0]) translatedText += sentence[0];
+                        });
+                        resultSpan.innerText = translatedText;
+                    } else {
+                        resultSpan.innerText = "Erro ao processar resposta do Google.";
+                    }
+                }
+            } catch (err) {
+                resultSpan.innerText = "Erro de conexão com o tradutor.";
+                console.error(err);
+            }
+        }
+
+        
+        function toggleHistoryContainerDisplay() {
+            const mode = document.getElementById("cfgHistoryMode").value;
+            document.getElementById("history-manager-container").style.display = mode === "none" ? "none" : "block";
+        }
+
+        async function getCryptoKey() {
+            return await crypto.subtle.importKey("raw", cryptoKeyRaw, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+        }
+
+        async function encryptData(text) {
+            try {
+                const key = await getCryptoKey();
+                const iv = crypto.getRandomValues(new Uint8Array(12));
+                const encoded = new TextEncoder().encode(text);
+                const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, encoded);
+                
+                let combined = new Uint8Array(iv.length + encrypted.byteLength);
+                combined.set(iv, 0);
+                combined.set(new Uint8Array(encrypted), iv.length);
+                return btoa(String.fromCharCode.apply(null, combined));
+            } catch(e) { return ""; }
+        }
+
+        async function decryptData(b64Data) {
+            try {
+                const key = await getCryptoKey();
+                const combined = new Uint8Array(atob(b64Data).split("").map(c => c.charCodeAt(0)));
+                const iv = combined.slice(0, 12);
+                const data = combined.slice(12);
+                const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, data);
+                return new TextDecoder().decode(decrypted);
+            } catch(e) { return "[Erro de Decodificação]"; }
+        }
+
+        async function initHistory() {
+            activeHistory = [];
+            if (historyMode === "none") return;
+            const rawData = localStorage.getItem("ghost_ndj_history_data");
+            if (!rawData) return;
+
+            try {
+                if (historyMode === "encrypted") {
+                    const encryptedList = JSON.parse(rawData);
+                    for(let item of encryptedList) {
+                        let decryptedUrl = await decryptData(item);
+                        if(decryptedUrl && decryptedUrl !== "[Erro de Decodificação]") activeHistory.push(decryptedUrl);
+                    }
+                } else {
+                    activeHistory = JSON.parse(rawData);
+                }
+            } catch(e) { activeHistory = []; }
+        }
+
+        async function saveHistoryToStorage() {
+            if (historyMode === "none") {
+                localStorage.removeItem("ghost_ndj_history_data");
+                return;
+            }
+            if (historyMode === "encrypted") {
+                let encryptedList = [];
+                for(let url of activeHistory) {
+                    let enc = await encryptData(url);
+                    if(enc) encryptedList.push(enc);
+                }
+                localStorage.setItem("ghost_ndj_history_data", JSON.stringify(encryptedList));
+            } else {
+                localStorage.setItem("ghost_ndj_history_data", JSON.stringify(activeHistory));
+            }
+        }
+
+        function appendHistory(url) {
+            if (historyMode === "none" || !url || url === "about:blank") return;
+            activeHistory = activeHistory.filter(item => item !== url); 
+            activeHistory.unshift(url); 
+            if(activeHistory.length > 30) activeHistory.pop(); 
+            saveHistoryToStorage();
+        }
+
+        function renderHistoryManager() {
+            const listContainer = document.getElementById("history-manager-list");
+            listContainer.innerHTML = "";
+            if(activeHistory.length === 0) {
+                listContainer.innerHTML = `<div style="font-size:12px; color:#666; text-align:center; padding:5px;">Histórico vazio</div>`;
+                return;
+            }
+            activeHistory.forEach((url, index) => {
+                const row = document.createElement("div");
+                row.className = "shortcut-manager-item";
+                const displayUrl = url.length > 38 ? url.substring(0, 35) + "..." : url; 
+                row.innerHTML = `
+                    <span onclick="toggleModal('settings-modal', false); openPage('${url}', '${url}')" style="cursor:pointer; color:#3b82f6; text-decoration:underline; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width:80%;" title="${url}">${displayUrl}</span>
+                    <button class="del-shortcut-btn" onclick="deleteHistoryItem(${index})">✕</button>
+                `;
+                listContainer.appendChild(row);
+            });
+        }
+
+        function deleteHistoryItem(index) {
+            activeHistory.splice(index, 1);
+            saveHistoryToStorage();
+            renderHistoryManager();
+        }
+
+        function clearAllHistory() {
+            if(confirm("Deseja apagar todo o histórico de navegação?")) {
+                activeHistory = [];
+                saveHistoryToStorage();
+                renderHistoryManager();
+            }
+        }
+
+        function reloadPage() {
+            if (frame.style.display === 'block') {
+                const currentSrc = frame.src;
+                frame.src = 'about:blank'; 
+                setTimeout(() => { frame.src = currentSrc; }, 50);
+            }
+        }
+
+
+        function activateReaderMode() {
+            if (frame.style.display !== 'block' || frame.src === 'about:blank') return;
+
+            const readerOverlay = document.getElementById("reader-mode-overlay");
+            const readerContent = document.getElementById("reader-content");
+
+            try {
+                
+                const iframeDoc = frame.contentDocument || frame.contentWindow.document;
+                
+                
+                const title = iframeDoc.querySelector('h1')?.innerText || iframeDoc.title || "Modo Leitura";
+                const paragraphs = iframeDoc.querySelectorAll('p');
+                
+                let textBody = `<h1>${title}</h1><hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">`;
+                
+                if(paragraphs.length === 0) {
+                    textBody += `<p style="color: #666;">Não foi possível extrair parágrafos de texto desta página.</p>`;
+                } else {
+                    paragraphs.forEach(p => {
+                        if(p.innerText.trim().length > 10) { 
+                            textBody += `<p style="margin-bottom: 20px;">${p.innerText}</p>`;
+                        }
+                    });
+                }
+
+                readerContent.innerHTML = textBody;
+                readerOverlay.style.display = "flex";
+
+            } catch (e) {
+                
+                readerContent.innerHTML = `
+                    <h1>Modo de Leitura Indisponível</h1>
+                    <p style="margin-top:20px;">Por motivos de segurança (CORS), o navegador bloqueou a extração direta do texto desta página externa.</p>
+                    <p>Dica: Isso funciona perfeitamente em páginas hospedadas no mesmo domínio ou arquivos locais!</p>
+                `;
+                readerOverlay.style.display = "flex";
+            }
+        }
+
+        
+        function closeReaderMode() {
+            document.getElementById("reader-mode-overlay").style.display = "none";
+        }
+
+    </script>
 </body>
 </html>
